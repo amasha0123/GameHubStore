@@ -1,0 +1,13 @@
+using System;
+
+namespace GameHubStore.Models
+{
+    public class Coupon
+    {
+        public int CouponId { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public decimal DiscountPercentage { get; set; }
+        public DateTime ExpirationDate { get; set; }
+        public bool IsActive { get; set; }
+    }
+}

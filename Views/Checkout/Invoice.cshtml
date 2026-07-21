@@ -1,0 +1,79 @@
+@model GameHubStore.Models.Order
+
+@{
+    ViewData["Title"] = "Order Invoice";
+}
+
+<div class="row mt-5 justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-0 rounded">
+            <div class="card-header bg-success text-white text-center py-4">
+                <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
+                <h2 class="mt-2">Payment Successful!</h2>
+                <p class="mb-0">Thank you for your purchase.</p>
+            </div>
+            
+            <div class="card-body p-5">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <h5 class="text-muted">Invoice To:</h5>
+                        <strong>@Model.User?.Name</strong><br>
+                        @Model.User?.Email
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <h5 class="text-muted">Order Details:</h5>
+                        <strong>Order #:</strong> @Model.OrderId<br>
+                        <strong>Date:</strong> @Model.OrderDate.ToString("g")<br>
+                        <strong>Status:</strong> <span class="badge bg-success">@Model.Status</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive-sm">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-center">Price</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(Model.OrderItems != null)
+                            {
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.Game?.Title</strong>
+                                        </td>
+                                        <td class="text-center">$@item.Price</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">$@(item.Price * item.Quantity)</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-lg-4 col-sm-5 ms-auto">
+                        <table class="table table-clear">
+                            <tbody>
+                                <tr>
+                                    <td class="left"><strong>Total</strong></td>
+                                    <td class="right text-end"><strong>$@Model.Total</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light text-center py-3">
+                <a asp-controller="Store" asp-action="Index" class="btn btn-primary">Continue Shopping</a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Go to Home</a>
+            </div>
+        </div>
+    </div>
+</div>

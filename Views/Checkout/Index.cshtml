@@ -1,0 +1,87 @@
+@model GameHubStore.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+    var cartItems = ViewBag.CartItems as List<GameHubStore.Models.Cart>;
+    var total = ViewBag.Total as decimal? ?? 0;
+}
+
+<div class="row mt-4 mb-5">
+    <div class="col-md-8">
+        <h2 class="mb-4">Billing & Payment</h2>
+        
+        <form asp-action="ProcessOrder" method="post" class="needs-validation">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white"><h5 class="mb-0">Billing Details</h5></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" placeholder="1234 Main St" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="Country" class="form-label"></label>
+                            <input asp-for="Country" class="form-control" />
+                            <span asp-validation-for="Country" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="City" class="form-label"></label>
+                            <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="ZipCode" class="form-label"></label>
+                            <input asp-for="ZipCode" class="form-control" />
+                            <span asp-validation-for="ZipCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="w-100 btn btn-success btn-lg" type="submit">Proceed to Stripe Payment</button>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-primary">Your cart</span>
+            <span class="badge bg-primary rounded-pill">@(cartItems?.Sum(c => c.Quantity) ?? 0)</span>
+        </h4>
+        <ul class="list-group mb-3 shadow-sm border-0">
+            @if (cartItems != null)
+            {
+                foreach (var item in cartItems)
+                {
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div>
+                            <h6 class="my-0">@item.Game?.Title</h6>
+                            <small class="text-muted">Qty: @item.Quantity</small>
+                        </div>
+                        <span class="text-muted">$@(item.Quantity * (item.Game?.Price ?? 0))</span>
+                    </li>
+                }
+            }
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Total (USD)</span>
+                <strong>$@total</strong>
+            </li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

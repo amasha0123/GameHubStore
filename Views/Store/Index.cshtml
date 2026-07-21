@@ -1,0 +1,64 @@
+@model IEnumerable<GameHubStore.Models.Game>
+
+@{
+    ViewData["Title"] = "Store";
+}
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <h4>Filter</h4>
+        <form asp-action="Index" method="get" class="mb-4">
+            <div class="mb-3">
+                <input type="text" name="searchString" value="@ViewBag.CurrentSearch" class="form-control" placeholder="Search games..." />
+            </div>
+            <div class="mb-3">
+                <select name="genreId" class="form-select" asp-items="ViewBag.Genres">
+                    <option value="">All Genres</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </form>
+    </div>
+    
+    <div class="col-md-9">
+        <h2>All Games</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl) && item.ImageUrl != "default-game.jpg")
+                        {
+                            <img src="~/images/games/@item.ImageUrl" class="card-img-top" alt="@item.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span>No Image</span>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <p class="card-text text-muted small">@item.Genre?.Name</p>
+                            <h6 class="fw-bold">$@item.Price</h6>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@item.GameId" class="btn btn-outline-primary btn-sm">Details</a>
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                <input type="hidden" name="id" value="@item.GameId" />
+                                <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            @if(!Model.Any())
+            {
+                <div class="col-12 text-center py-5">
+                    <h5 class="text-muted">No games found matching your criteria.</h5>
+                </div>
+            }
+        </div>
+    </div>
+</div>

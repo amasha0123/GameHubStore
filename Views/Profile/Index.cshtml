@@ -1,0 +1,168 @@
+@model GameHubStore.ViewModels.UserProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row mt-4 mb-5">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 text-center mb-4">
+            <div class="card-body py-5">
+                <img src="https://ui-avatars.com/api/?name=@(Model.User?.Name ?? Model.User?.UserName)&background=random&size=128" alt="Avatar" class="rounded-circle mb-3" style="width: 120px; height: 120px;" />
+                <h4 class="mb-1">@Model.User?.Name</h4>
+                <p class="text-muted small">@Model.User?.Email</p>
+                <p class="text-muted small">Member since @Model.User?.CreatedAt.ToString("MMM yyyy")</p>
+            </div>
+        </div>
+        
+        <div class="list-group shadow-sm mb-4">
+            <button class="list-group-item list-group-item-action active" id="nav-games-tab" data-bs-toggle="list" data-bs-target="#nav-games" type="button" role="tab"><i class="bi bi-controller me-2"></i> Purchased Games</button>
+            <button class="list-group-item list-group-item-action" id="nav-orders-tab" data-bs-toggle="list" data-bs-target="#nav-orders" type="button" role="tab"><i class="bi bi-receipt me-2"></i> Order History</button>
+            <button class="list-group-item list-group-item-action" id="nav-wishlist-tab" data-bs-toggle="list" data-bs-target="#nav-wishlist" type="button" role="tab"><i class="bi bi-heart me-2"></i> Wishlist</button>
+            <button class="list-group-item list-group-item-action" id="nav-reviews-tab" data-bs-toggle="list" data-bs-target="#nav-reviews" type="button" role="tab"><i class="bi bi-star me-2"></i> My Reviews</button>
+            <button class="list-group-item list-group-item-action" id="nav-settings-tab" data-bs-toggle="list" data-bs-target="#nav-settings" type="button" role="tab"><i class="bi bi-gear me-2"></i> Settings</button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="col-md-9">
+        <div class="tab-content" id="nav-tabContent">
+            
+            <!-- Purchased Games Tab -->
+            <div class="tab-pane fade show active" id="nav-games" role="tabpanel">
+                <h3 class="mb-4">Purchased Games</h3>
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    @if (Model.Orders != null)
+                    {
+                        var purchasedGames = Model.Orders.SelectMany(o => o.OrderItems ?? new List<GameHubStore.Models.OrderItem>()).Select(oi => oi.Game).Distinct();
+                        foreach (var game in purchasedGames)
+                        {
+                            if(game != null)
+                            {
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        @if (!string.IsNullOrEmpty(game.ImageUrl) && game.ImageUrl != "default-game.jpg")
+                                        {
+                                            <img src="~/images/games/@game.ImageUrl" class="card-img-top" alt="@game.Title" style="height: 150px; object-fit: cover;">
+                                        }
+                                        <div class="card-body">
+                                            <h6 class="card-title">@game.Title</h6>
+                                            <a asp-controller="Store" asp-action="Details" asp-route-id="@game.GameId" class="btn btn-outline-primary btn-sm w-100">Play / Download</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Order History Tab -->
+            <div class="tab-pane fade" id="nav-orders" role="tabpanel">
+                <h3 class="mb-4">Order History</h3>
+                @if (Model.Orders != null && Model.Orders.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.Orders)
+                                {
+                                    <tr>
+                                        <td>@order.OrderId</td>
+                                        <td>@order.OrderDate.ToString("g")</td>
+                                        <td>$@order.Total</td>
+                                        <td><span class="badge bg-success">@order.Status</span></td>
+                                        <td><a asp-controller="Checkout" asp-action="Invoice" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-secondary">View</a></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">You have no past orders.</p>
+                }
+            </div>
+
+            <!-- Wishlist Tab -->
+            <div class="tab-pane fade" id="nav-wishlist" role="tabpanel">
+                <h3 class="mb-4">My Wishlist</h3>
+                <div class="list-group">
+                    @if (Model.Wishlists != null && Model.Wishlists.Any())
+                    {
+                        foreach (var item in Model.Wishlists)
+                        {
+                            <a asp-controller="Store" asp-action="Details" asp-route-id="@item.GameId" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">@item.Game?.Title</h6>
+                                    <small class="text-muted">$@item.Game?.Price</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill"><i class="bi bi-cart"></i></span>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Your wishlist is empty.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="nav-reviews" role="tabpanel">
+                <h3 class="mb-4">My Reviews</h3>
+                @if (Model.Reviews != null && Model.Reviews.Any())
+                {
+                    <div class="row g-3">
+                        @foreach(var review in Model.Reviews)
+                        {
+                            <div class="col-12">
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="card-title text-primary">@review.Game?.Title</h6>
+                                            <small class="text-muted">@review.Date.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                        <div class="mb-2">
+                                            @for(int i = 0; i < review.Rating; i++)
+                                            {
+                                                <i class="bi bi-star-fill text-warning"></i>
+                                            }
+                                        </div>
+                                        <p class="card-text">@review.Comment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">You haven't reviewed any games yet.</p>
+                }
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="nav-settings" role="tabpanel">
+                <h3 class="mb-4">Account Settings</h3>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted">Settings panel implementation goes here (e.g., change password, update email).</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>

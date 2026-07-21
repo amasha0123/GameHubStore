@@ -1,0 +1,51 @@
+@model GameHubStore.Models.Game
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="row mt-5 mb-5">
+    <div class="col-md-4">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl) && Model.ImageUrl != "default-game.jpg")
+        {
+            <img src="~/images/games/@Model.ImageUrl" class="img-fluid rounded shadow" alt="@Model.Title">
+        }
+        else
+        {
+            <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded shadow" style="height: 400px;">
+                <span>No Image</span>
+            </div>
+        }
+    </div>
+    <div class="col-md-8">
+        <h1 class="display-4 fw-bold">@Model.Title</h1>
+        <p class="text-muted fs-5">@Model.Genre?.Name</p>
+        
+        <div class="my-4">
+            <h2 class="text-primary fw-bold">$@Model.Price</h2>
+            @if(Model.Discount > 0)
+            {
+                <span class="badge bg-danger">@Model.Discount% OFF</span>
+            }
+        </div>
+
+        <p class="lead">@Model.Description</p>
+
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item bg-transparent"><strong>Developer:</strong> @Model.Developer</li>
+            <li class="list-group-item bg-transparent"><strong>Publisher:</strong> @Model.Publisher</li>
+            <li class="list-group-item bg-transparent"><strong>Release Date:</strong> @Model.ReleaseDate.ToLongDateString()</li>
+        </ul>
+
+        <div class="d-flex gap-2">
+            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                <input type="hidden" name="id" value="@Model.GameId" />
+                <button type="submit" class="btn btn-primary btn-lg px-5">Add to Cart</button>
+            </form>
+            <form asp-controller="Wishlist" asp-action="Add" method="post">
+                <input type="hidden" name="id" value="@Model.GameId" />
+                <button type="submit" class="btn btn-outline-danger btn-lg"><i class="bi bi-heart"></i> Add to Wishlist</button>
+            </form>
+        </div>
+    </div>
+</div>
